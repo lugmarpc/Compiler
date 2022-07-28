@@ -71,6 +71,29 @@ func (r *RustBackend) RustTypeOf(lugma typechecking.Type, module typechecking.Pa
 	}
 }
 
+func (r *RustBackend) GenerateClient(mod *typechecking.Module, in *typechecking.Context) (string, error) {
+	build := backends.Filebuilder{}
+
+	build.Add(`use async_trait::async_trait;`)
+
+	build.Add(`#[async_trait]`)
+	build.AddI(`pub trait Client<T: Transport> {`)
+	build.Add(`async fn make_from(transport: T) -> Self;`)
+	for _, fn := range mod.Funcs {
+		build.AddE(`async fn %s(`, strcase.ToSnake(fn.ObjectName()))
+		for _, arg := range fn.Arguments {
+			build.AddK(`%s: %s`, strcase.ToSnake(arg.ObjectName()), r.RustTypeOf(arg.Type, mod.Path(), in))
+			build.AddK(`, `)
+		}
+		build.AddK(`extra: T::Extra`)
+		build.AddK(`) -> ();`)
+		build.AddNL()
+	}
+	build.AddD(`}`)
+
+	return build.String(), nil
+}
+
 func (r *RustBackend) GenerateTypes(mod *typechecking.Module, in *typechecking.Context) (string, error) {
 	build := backends.Filebuilder{}
 
@@ -158,7 +181,7 @@ func (r *RustBackend) GenerateCommand() *cli.Command {
 					return err
 				}
 
-				err = ioutil.WriteFile(path.Join(outdir, mod.Name+"_types.rs"), []byte(result), fs.ModePerm)
+				err = ioutil.WriteFile(path.Join(outdir, strcase.ToSnake(mod.Name)+"_types.rs"), []byte(result), fs.ModePerm)
 				if err != nil {
 					return err
 				}
@@ -166,19 +189,19 @@ func (r *RustBackend) GenerateCommand() *cli.Command {
 
 			types := cCtx.StringSlice("types")
 			if contains(types, "client") {
-				// for _, prod := range w.Module.Products {
-				// 	mod := w.KnownModules[prod.Name]
+				for _, prod := range w.Module.Products {
+					mod := w.KnownModules[prod.Name]
 
-				// 	result, err := r.GenerateClient(mod, w.Context)
-				// 	if err != nil {
-				// 		return err
-				// 	}
+					result, err := r.GenerateClient(mod, w.Context)
+					if err != nil {
+						return err
+					}
 
-				// 	err = ioutil.WriteFile(path.Join(outdir, mod.Name+"_client.rs"), []byte(result), fs.ModePerm)
-				// 	if err != nil {
-				// 		return err
-				// 	}
-				// }
+					err = ioutil.WriteFile(path.Join(outdir, strcase.ToSnake(mod.Name)+"_client.rs"), []byte(result), fs.ModePerm)
+					if err != nil {
+						return err
+					}
+				}
 			}
 			if contains(types, "server") {
 				// for _, prod := range w.Module.Products {
