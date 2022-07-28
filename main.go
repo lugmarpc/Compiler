@@ -9,6 +9,7 @@ import (
 
 	"github.com/urfave/cli/v2"
 
+	_ "lugmac/backends/rust"
 	_ "lugmac/backends/typescript"
 )
 

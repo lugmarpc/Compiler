@@ -43,6 +43,7 @@ func deleteChannel()
 
 struct Message {
     let text: String
+    let superLongText: String
 }
 
 stream Messages {
