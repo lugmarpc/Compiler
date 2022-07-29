@@ -187,7 +187,7 @@ func (ts TypescriptBackend) GenerateTypes(mod *typechecking.Module, in *typechec
 func (ts TypescriptBackend) GenerateServer(mod *typechecking.Module, in *typechecking.Context) (string, error) {
 	build := backends.Filebuilder{}
 
-	build.Add(`import { Result, Transport, Stream } from 'lugma-server-helpers'`)
+	build.Add(`import { Result, Transport, Stream } from '@lugma/server-helpers'`)
 	build.Add(`import { %s } from './%s.types'`, strings.Join(allNames(mod), ", "), mod.Name)
 	build.Add(`export * from './%s.types'`, mod.Name)
 
@@ -299,7 +299,7 @@ func allNames(mod *typechecking.Module) []string {
 func (ts TypescriptBackend) GenerateClient(mod *typechecking.Module, in *typechecking.Context) (string, error) {
 	build := backends.Filebuilder{}
 
-	build.Add(`import { Transport, Stream } from 'lugma-web-helpers'`)
+	build.Add(`import { Transport, Stream } from '@lugma/web-helpers'`)
 	build.Add(`import { %s } from './%s.types'`, strings.Join(allNames(mod), ", "), mod.Name)
 	build.Add(`export * from './%s.types'`, mod.Name)
 
