@@ -9,6 +9,7 @@ import (
 
 	"github.com/urfave/cli/v2"
 
+	_ "lugmac/backends/swift"
 	_ "lugmac/backends/typescript"
 )
 

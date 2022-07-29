@@ -35,7 +35,7 @@ func updateChannelOrder()
 /**
     Rearranges all channels in a guild's channel list at once
 */
-func updateAllChannelOrder()
+func updateAllChannelOrder() -> UInt64
 /**
     Deletes a channel
 */
